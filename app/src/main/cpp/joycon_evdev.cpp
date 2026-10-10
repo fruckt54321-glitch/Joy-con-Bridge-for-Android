@@ -289,7 +289,7 @@ bool setAbsoluteAxis(int fd, int code, int minimum, int maximum, int flat) {
     setup.absinfo.maximum = maximum;
     setup.absinfo.flat = flat;
     setup.absinfo.value = minimum == 0 && maximum == 255 ? 128 : 0;
-    if (code == ABS_BRAKE || code == ABS_GAS) {
+    if (code == ABS_Z || code == ABS_RZ) {
         setup.absinfo.value = 0;
     }
     if (ioctl(fd, UI_ABS_SETUP, &setup) >= 0) {
@@ -316,8 +316,8 @@ std::unique_ptr<VirtualGamepad> createVirtualGamepad(
             BTN_MODE, BTN_THUMBL, BTN_THUMBR
     };
     const std::array<int, 8> axes = {
-            ABS_X, ABS_Y, ABS_Z, ABS_RZ,
-            ABS_BRAKE, ABS_GAS, ABS_HAT0X, ABS_HAT0Y
+            ABS_X, ABS_Y, ABS_RX, ABS_RY,
+            ABS_Z, ABS_RZ, ABS_HAT0X, ABS_HAT0Y
     };
 
     if (!setCapability(gamepad->fd, UI_SET_EVBIT, EV_KEY, "EV_KEY")
@@ -341,10 +341,10 @@ std::unique_ptr<VirtualGamepad> createVirtualGamepad(
     }
     if (!setAbsoluteAxis(gamepad->fd, ABS_X, 0, 255, 15)
             || !setAbsoluteAxis(gamepad->fd, ABS_Y, 0, 255, 15)
+            || !setAbsoluteAxis(gamepad->fd, ABS_RX, 0, 255, 15)
+            || !setAbsoluteAxis(gamepad->fd, ABS_RY, 0, 255, 15)
             || !setAbsoluteAxis(gamepad->fd, ABS_Z, 0, 255, 15)
             || !setAbsoluteAxis(gamepad->fd, ABS_RZ, 0, 255, 15)
-            || !setAbsoluteAxis(gamepad->fd, ABS_BRAKE, 0, 255, 15)
-            || !setAbsoluteAxis(gamepad->fd, ABS_GAS, 0, 255, 15)
             || !setAbsoluteAxis(gamepad->fd, ABS_HAT0X, -1, 1, 0)
             || !setAbsoluteAxis(gamepad->fd, ABS_HAT0Y, -1, 1, 0)) {
         close(gamepad->fd);
@@ -417,10 +417,10 @@ bool writeVirtualReport(VirtualGamepad *gamepad, const std::array<uint8_t, 10> &
     appendEvent(events, count, EV_ABS, ABS_HAT0Y, kHatY[static_cast<size_t>(hat)]);
     appendEvent(events, count, EV_ABS, ABS_X, report[4]);
     appendEvent(events, count, EV_ABS, ABS_Y, report[5]);
-    appendEvent(events, count, EV_ABS, ABS_Z, report[6]);
-    appendEvent(events, count, EV_ABS, ABS_RZ, report[7]);
-    appendEvent(events, count, EV_ABS, ABS_BRAKE, report[8]);
-    appendEvent(events, count, EV_ABS, ABS_GAS, report[9]);
+    appendEvent(events, count, EV_ABS, ABS_RX, report[6]);
+    appendEvent(events, count, EV_ABS, ABS_RY, report[7]);
+    appendEvent(events, count, EV_ABS, ABS_Z, report[8]);
+    appendEvent(events, count, EV_ABS, ABS_RZ, report[9]);
     appendEvent(events, count, EV_SYN, SYN_REPORT, 0);
 
     std::lock_guard<std::mutex> guard(gamepad->writeMutex);
