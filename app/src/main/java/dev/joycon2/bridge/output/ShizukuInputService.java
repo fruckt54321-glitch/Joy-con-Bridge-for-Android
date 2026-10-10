@@ -412,7 +412,7 @@ public final class ShizukuInputService extends IInputInjectionService.Stub {
         if (mode == BridgeMode.COMBINED) {
             combinedGamepad = createVirtualDevice(
                     HidGamepadDescriptor.COMBINED_DEVICE_NAME,
-                    0x7001
+                    0x028E
             );
             writeVirtualReport(combinedGamepad, HidGamepadReport.neutralMapped());
         } else {
@@ -432,7 +432,7 @@ public final class ShizukuInputService extends IInputInjectionService.Stub {
     private long createVirtualDevice(String name, int productId)
             throws IOException, InterruptedException {
         Set<Integer> before = currentDeviceIds();
-        long handle = nativeCreateVirtualGamepad(name, 0x1209, productId);
+        long handle = nativeCreateVirtualGamepad(name, 0x045E, productId);
         if (handle == 0L) {
             throw new IOException(nativeLastError());
         }
